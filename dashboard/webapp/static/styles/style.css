@@ -1,0 +1,44 @@
+body {
+    background: EEE;
+    color: dimgray;
+}
+
+table {
+    margin:  auto;
+    table-layout: fixed;
+    width: 80%;
+    border-collapse: collapse;
+    border: 1px solid #333;
+}
+
+thead,
+tfoot {
+    background-color: dimgrey;
+    color: #fff;
+}
+
+
+th, td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #333;
+}
+th {
+font-style: bold;
+}
+
+
+table.disp_posts {
+    margin-left:  2em;
+    width: 90%;
+}
+table.disp_posts td{
+    text-align: left;
+    padding:  0.2rem;
+    font-size: 0.8rem;
+}
+
+
+
+
+

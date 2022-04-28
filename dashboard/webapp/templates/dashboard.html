@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>Hello, {{ current_user.username }}!</h3>
+
+
+<table style="width:90%" class="AddServer">
+        <col style="width:15%">
+        <col style="width:15%">
+        <col style="width:12%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <thead>
+                <tr>
+                        <th colspan="9">Servers registred for monitoring</th>
+                </tr>
+        </thead>
+        <tbody>
+                <tr>
+                            <th>Server Name</th>
+                            <th>Ip address</th>
+                            <th>Login User</th>
+                            <th>System</th>
+                            <th>Modele</th>
+                            <th>OS version</th>
+                            <th>Memory</th>
+                            <th>CPU info</th>
+                            <th><a  href="{{ url_for('update_all_server') }}" onclick="return confirm('Do you want to update all servers ? It will take a moment!');">Update/Edit</a></th>
+                </tr>
+                {% for server in data %}
+                <tr>
+                        <td><p> {{ server.name }} {% if server.public_name != None %} <br>{{ server.public_name }}   {% endif %}</p></td>
+                        <td><p> {{ server.address }} {% if server.public_address != '0.0.0.0' %}  <br>{{ server.public_address }} {% endif %}</p></td>                       
+                        <td><p> {{ server.user }} </p></td>
+                        <td><p> {{ server.system_type }}</p></td>
+                        <td><p> {{ server.modele }}</p></td>
+                        <td><p> {{ server.os }}</p></td>
+                        <td><p> {{ server.raminfo }}</p></td>
+                        <td><p> {{ server.cpuinfo }}</p></td>
+                        <td><p><a  href="{{ url_for('server', server=server.name) }}"> Update/Edit<a></p></td>
+                 </tr>
+                {% endfor %}
+        
+        </tbody>
+</table>
+{% endblock %}
