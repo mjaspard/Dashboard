@@ -1,0 +1,32 @@
+<table class="disp_posts">
+        <col style="width:10%">
+        <col style="width:65%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <thead>
+                <tr>
+                        <th colspan="5">Last comments </th>
+                </tr>
+        </thead>
+        <tbody>
+                <tr >
+                            <th>User</th>
+                            <th>Comment</th>
+                            <th>Device</th>
+                            <th>Date and time</th>
+                            <th>Action</th>
+                </tr>
+
+                {% for post in posts %}
+                <tr>
+                        <td>{{ post.user_id }} </td>
+                        <td style="white-space: pre-line"> {{ post.body }} </td>
+                        <td> {{ post.device }} </td>
+                        <td class="date"> {{ post.timestamp.strftime("%d/%m/%y %X") }} </td>
+                        <td><a href="{{ url_for('post_delete', id=post.id) }}" onclick="return confirm('Do you want to permanently delete the comment: {{ post.body }}?');" title="Delete Comment">delete</a></td>
+                 </tr>
+                {% endfor %}
+        
+        </tbody>
+</table>

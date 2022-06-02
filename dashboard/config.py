@@ -12,7 +12,7 @@ class Config(object):
 	MAIL_PORT = int('587')
 	MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
 	MAIL_USERNAME = os.environ.get('maxime')
-	MAIL_PASSWORD = os.environ.get('***')
+	MAIL_PASSWORD = os.environ.get('Burnotte_67')
 	ADMINS = ['maxime@ecgs.lu']
 
 

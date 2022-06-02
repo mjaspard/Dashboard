@@ -1,0 +1,90 @@
+body {
+    background: EEE;
+    color: dimgray;
+}
+
+table {
+    margin:  auto;
+    table-layout: fixed;
+    width: 80%;
+    border-collapse: collapse;
+    border: 1px solid #333;
+}
+
+thead,
+tfoot {
+    background-color: dimgrey;
+    color: #fff;
+}
+
+
+th, td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #333;
+}
+th {
+font-style: bold;
+}
+
+
+table.disp_posts {
+/*    margin-left:  2em;*/
+    width: 80%;
+}
+table.disp_posts td{
+    text-align: left;
+    padding:  0.2rem;
+    font-size: 0.8rem;
+}
+
+tr.left > td{
+    text-align: left;
+    padding:  0.2rem;
+    padding-left:  0.4rem;
+    font-size: 0.8rem;
+}
+
+div.base > a{
+padding:  1rem;
+}
+
+td.green {
+    border-bottom-color: green;
+    border-left-color: green;
+    border-right-color: green;
+    border-left-width: 0.15rem;
+    border-right-width: 0.15rem;
+    border-bottom-width: 0.15rem;
+}
+td.red {
+    border-bottom-color: red;
+    border-left-color: red;
+    border-right-color: red;
+    border-left-width: 0.2rem;
+    border-right-width: 0.2rem;
+    border-bottom-width: 0.2rem;
+}
+
+
+table.Monitoring th{
+    background-color: grey;
+    padding:  0.2rem;
+    text-align: left;
+    margin-top: 1rem;
+}
+table.Monitoring {
+    margin-top: 1rem;
+}
+
+table.Monitoring a {
+    font-size: 0.8rem;
+}
+.align-right {
+    float: right;
+}
+
+p.redcenter {
+    text-align: center;
+    color: red;
+}

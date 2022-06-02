@@ -30,14 +30,16 @@ class RegistrationForm(FlaskForm):
 
 
 class AddServerForm(FlaskForm):
+    ssh_connection = BooleanField('SSH connection')
     user = StringField('Login User', validators=[DataRequired()])
     address = StringField('Local IP address', validators=[DataRequired(), IPAddress(ipv4=True, ipv6=False, message=None)])
     name = StringField('Local hostname', validators=[DataRequired()])
     public_server = BooleanField('Public Server')
     public_address = StringField('Public IP address', default='0.0.0.0', validators=[IPAddress(ipv4=True, ipv6=False, message=None)])
     public_name = StringField('Public hostname')
-    about_me = TextAreaField('About this server', validators=[Length(min=0, max=140)])
+    about_me = TextAreaField('About this server', validators=[Length(min=0, max=1500)])
     submit = SubmitField('Save data')
+    
 
     def __init__(self, new):
         super(AddServerForm, self).__init__()
@@ -69,6 +71,18 @@ class EditProfileForm(FlaskForm):
                 raise ValidationError('Please use a different username.')
 
 class PostForm(FlaskForm):
-    post = TextAreaField('Add comments', validators=[DataRequired(), Length(min=1, max=1000)])
+    post = TextAreaField('Add comments', validators=[DataRequired(), Length(min=1, max=10000)])
     device = SelectField('Select device', choices=Server.query.all())
     submit = SubmitField('Submit')
+
+
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    password2 = PasswordField(
+        'Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Request Password Reset')

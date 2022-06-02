@@ -1,4 +1,4 @@
-<table class="disp_posts">
+   <table class="table table-hover title">
         <col style="width:10%">
         <col style="width:65%">
         <col style="width:10%">
@@ -20,15 +20,15 @@
 
                 {% for post in posts %}
                 <tr>
-                        <td>{{ post.user_id }} </td>
-                        <td> {{ post.body }} </td>
+                        <td width="3rem"><a href="{{ url_for('user', username=post.author.username) }}"><img src="{{ post.author.avatar(30) }}" /></a></td>
+                        <td  style="white-space: pre-line"><a href="{{ url_for('user', username=post.author.username) }}">{{ post.author.username }}</a> says:<br>{{ post.body }}</td>
                         <td> {{ post.device }} </td>
                         <td class="date"> {{ post.timestamp.strftime("%d/%m/%y %X") }} </td>
-                        <td><a href="{{ url_for('post_delete', id=post.id) }}"
-  onclick="return confirm('Do you want to permanently delete the comment: {{ post.body }}?');" title="Delete Comment">
-  <i class="material-icons" style="font-size:16px">delete</i></a></td>
+                        <td><a href="{{ url_for('post_delete', id=post.id) }}" onclick="return confirm('Do you want to permanently delete the comment: {{ post.body }}?');" title="Delete Comment">delete</a></td>
                  </tr>
                 {% endfor %}
         
         </tbody>
 </table>
+
+

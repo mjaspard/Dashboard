@@ -1,0 +1,15 @@
+doris-pro: hp-1650-Data_Share1, hp-D3600-Data_Share1, hp-D3601-Data_RAID6, hp-D3602-Data_RAID5
+
+doris5: hp-1650-Data_Share1, hp-D3600-Data_Share1, hp-D3601-Data_RAID6, hp-D3602-Data_RAID5, DORIS5-TimeMachine-backup
+
+terra3: D3602, 1650, D3601, DORIS, Lacie-terra3-Backup
+
+bern-gorisk-bkup: DataRDC, DataRDC4T, Bern-Gorisk-Bkup-TimeMachine, BernGorisk-Bkup-Clone2, Bern-Gorisk-Bkup-BootHD-Clone
+
+bern-gorisk: DataRDC, Quadra-bern-gorisk-TM
+
+seiscomp-main: SDSdisk, SDSdisk8TB, SDSdisk-Backup, TM-seiscomp-main
+
+the-beast: Seismo20TA, TM-the-beast
+
+luna: hpe-4tb-ftp_data, previous_bootdisc_suse

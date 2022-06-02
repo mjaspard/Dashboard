@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>Hello, {{ current_user.username }}!</h3>
+
+{% for server in data %}
+        {% if server.ssh_connection == True %}
+
+
+
+
+                <table style="width:90%" class="Monitoring">
+                        <thead>
+                                <tr>
+                                        <th colspan="8">{{ server.name }}<a  class="align-right" href="{{ url_for('server', server=server.name) }}">Check server details<a></th>
+                                </tr>
+                        </thead><br>
+                        <tbody>
+                                <tr>
+                                        {% if server.ping_all() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{ border_c }}>ping server</td>
+
+                                        {% if server.check_mounted_all_volumes() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{ border_c }}>Mounted Volumes</td>
+
+                                        {% if server.get_backup_info() %}
+                                                {% if server.check_all_backup() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                                <td class={{ border_c }}>Backup</td>
+                                                {% else %}<td></td>{% endif %}
+         
+
+
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+
+                                </tr>               
+                        </tbody>
+                </table>
+
+
+
+
+        {% endif %}
+{% endfor %}
+
+
+{% endblock %}

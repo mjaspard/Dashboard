@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>Hello, {{ current_user.username }}!</h3>
+
+{% for server in data %}
+
+<!-- TERRA 3 -->
+        {% if server.name == "terra3" %}
+                <table style="width:90%" class="Monitoring">
+                        <thead>
+                                <tr>
+                                        <th colspan="8">{{ server.name }}<a  class="align-right" href="{{ url_for('server', server=server.name) }}">Check server details<a></th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                                <tr>
+                                        {% if server.ping_ip() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.address  }}</td>
+                                        {% if server.ping_hostname() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.name }}</td>
+                                        {% if server.ping_public_ip() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.public_name }}</td>
+                                        {% if server.ping_public_hostname() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.public_address }}</td>
+
+                                        {% if server.check_mounted_all_volumes() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+<!--                                         {% set x = server.check_mounted_all_volumes() %} -->
+                                        <td class={{border_c}}>Mounted Volumes</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                </tr>               
+                        </tbody>
+                </table>
+        {% endif %}
+
+<!-- DORIS-PRO -->
+        {% if server.name == "doris-pro" %}
+                <table style="width:90%" class="Monitoring">
+                        <thead>
+                                <tr>
+                                        <th colspan="8">{{ server.name }}<a class="align-right" href="{{ url_for('server', server=server.name) }}">Check server details<a></th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                                <tr>
+                                        {% if server.ping_ip() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.address }}</td>
+                                        {% if server.ping_hostname() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.name }}</td>
+                                        {% if server.check_mounted_all_volumes() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>Mounted volumes</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                </tr>               
+                        </tbody>
+                </table>
+        {% endif %}
+
+<!-- BERN-GORISK-BKUP -->
+        {% if server.name == "bern-gorisk-bkup" %}
+                <table style="width:90%" class="Monitoring">
+                        <thead>
+                                <tr>
+                                        <th colspan="8">{{ server.name }}<a class="align-right" href="{{ url_for('server', server=server.name) }}">Check server details<a></th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                                <tr>
+                                        {% if server.ping_ip() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.address }}</td>
+                                        {% if server.ping_hostname() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.name }}</td>
+                                        {% if server.check_mounted_all_volumes() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>Mounted volumes</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                </tr>               
+                        </tbody>
+                </table>
+        {% endif %}
+
+<!-- BERN-GORISK -->
+        {% if server.name == "bern-gorisk" %}
+                <table style="width:90%" class="Monitoring">
+                        <thead>
+                                <tr>
+                                        <th colspan="8">{{ server.name }}<a class="align-right" href="{{ url_for('server', server=server.name) }}">Check server details<a></th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                                <tr>
+                                        {% if server.ping_ip() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.address }}</td>
+                                        {% if server.ping_hostname() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.name }}</td>
+                                        {% if server.check_mounted_all_volumes() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>Mounted volumes</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                </tr>               
+                        </tbody>
+                </table>
+        {% endif %}
+
+
+<!-- SEISCOMP-MAIN -->
+        {% if server.name == "seiscomp-main" %}
+                <table style="width:90%" class="Monitoring">
+                        <thead>
+                                <tr>
+                                        <th colspan="8">{{ server.name }}<a class="align-right" href="{{ url_for('server', server=server.name) }}">Check server details<a></th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                                <tr>
+                                        {% if server.ping_ip() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.address }}</td>
+                                        {% if server.ping_hostname() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.name }}</td>
+                                        {% if server.check_mounted_all_volumes() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>Mounted volumes</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                </tr>               
+                        </tbody>
+                </table>
+        {% endif %}
+
+<!-- THE-BEAST-->
+        {% if server.name == "the-beast" %}
+                <table style="width:90%" class="Monitoring">
+                        <thead>
+                                <tr>
+                                        <th colspan="8">{{ server.name }}<a class="align-right" href="{{ url_for('server', server=server.name) }}">Check server details<a></th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                                <tr>
+                                        {% if server.ping_ip() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.address }}</td>
+                                        {% if server.ping_hostname() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.name }}</td>
+                                        {% if server.check_mounted_all_volumes() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>Mounted volumes</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                </tr>               
+                        </tbody>
+                </table>
+        {% endif %}
+
+<!-- LUNA-->
+        {% if server.name == "luna" %}
+                <table style="width:90%" class="Monitoring">
+                        <thead>
+                                <tr>
+                                        <th colspan="8">{{ server.name }}<a class="align-right" href="{{ url_for('server', server=server.name) }}">Check server details<a></th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                                <tr>
+                                        {% if server.ping_ip() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.address }}</td>
+                                        {% if server.ping_hostname() == 0 %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>ping {{ server.name }}</td>
+                                        {% if server.check_mounted_all_volumes() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                        <td class={{border_c}}>Mounted volumes</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                </tr>               
+                        </tbody>
+                </table>
+        {% endif %}
+
+
+{% endfor %}
+
+
+{% endblock %}

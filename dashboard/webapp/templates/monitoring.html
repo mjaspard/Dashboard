@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+
+        {% for server in data %}
+                {% set test_server = server.test_connect() %}
+                {% if test_server[0] == True %}
+
+                        <table class="table table-hover table-bordered monitoring">
+
+                                <tbody>
+                                        <tr>
+
+                                                <td><a href="{{ url_for('server', server=server.name) }}">{{ server.name }}</a></td>
+                                                {% if server.ping_all() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                                <td class={{ border_c }}>ping server</td>
+
+                                                {% if server.check_mounted_all_volumes()[0] %}
+                                                        {% if server.check_mounted_all_volumes()[1] %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                                        <td class={{ border_c }}>Mounted Volumes</td>
+                                                        {% else %}<td></td>{% endif %}
+
+                                                {% if server.get_backup_info()[0] %}
+                                                        {% if server.check_all_backup() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
+                                                        <td class={{ border_c }}>Backup</td>
+                                                        {% else %}<td></td>{% endif %}
+                 
+
+
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+
+                                        </tr>               
+                                </tbody>
+                        </table>
+                {% elif server.ssh_connection == True %}
+                        <table class="table table-hover table-bordered monitoring">
+
+                                <tbody>
+                                        <tr>
+
+                                                <td><a href="{{ url_for('server', server=server.name) }}">{{ server.name }}</a>
+                                                <td class="red" colspan="7">SSH failure: {{test_server[1]}}</td>
+
+                                        </tr>               
+                                </tbody>
+                        </table>
+
+                {% endif %}
+        {% endfor %}
+
+</div>
+{% endblock %}

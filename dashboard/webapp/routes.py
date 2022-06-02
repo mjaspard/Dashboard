@@ -1,6 +1,6 @@
 from webapp import app 
 from flask import render_template, flash , redirect, url_for, request
-from webapp.forms import LoginForm, RegistrationForm, AddServerForm, EditProfileForm, PostForm
+from webapp.forms import LoginForm, RegistrationForm, AddServerForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
 from flask_login import current_user, login_user, logout_user, login_required
 from webapp.models import User, Server, Post
 from werkzeug.urls import url_parse
@@ -8,6 +8,8 @@ from webapp import db
 from datetime import datetime
 import subprocess
 import re
+import os
+from webapp.email import send_password_reset_email
 
 @app.before_request
 def before_request():
@@ -21,7 +23,7 @@ def before_request():
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(body=form.post.data, user_id=current_user.username, device=form.device.data)
+        post = Post(body=form.post.data, device=form.device.data, author=current_user)
         db.session.add(post)
         db.session.commit()
         flash('Your comment is recorded')
@@ -66,12 +68,40 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
+@app.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Check your email for the instructions to reset your password')
+        return redirect(url_for('login'))
+    return render_template('reset_password_request.html',
+                           title='Reset Password', form=form)
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset.')
+        return redirect(url_for('login'))
+    return render_template('reset_password.html', form=form)
 
 @app.route('/user/<username>')
 @login_required
 def user(username):
         user = User.query.filter_by(username=username).first_or_404()
-        posts = Post.query.order_by(Post.timestamp.desc()).filter_by(user_id=username)
+        posts = Post.query.order_by(Post.timestamp.desc()).filter_by(user_id=user.id)
         return render_template('user.html', user=user, posts=posts)
 
 @app.route('/AddServer', methods=['GET', 'POST'])
@@ -107,6 +137,7 @@ def edit_server(name):
         server_update.public_server = form.public_server.data
         server_update.user = form.user.data
         server_update.about_me = form.about_me.data
+        server_update.ssh_connection = form.ssh_connection.data
         db.session.commit()
         flash('Thanks for modifying this server!')
         return redirect(url_for('server', server=server_update.name))
@@ -116,7 +147,8 @@ def edit_server(name):
         if server_current.public_address != None:
             form.public_address.data = server_current.public_address 
         else:
-            form.public_address.data = '0.0.0.0'
+            form.public_address.data = '0.0.0.1'
+            form.public_address(disable=True)
         if server_current.public_name != None:
             form.public_name.data = server_current.public_name
         else:
@@ -124,6 +156,7 @@ def edit_server(name):
         form.public_server.data = server_current.public_server
         form.about_me.data = server_current.about_me
         form.user.data = server_current.user
+        form.ssh_connection.data = server_current.ssh_connection
     return render_template('edit_server.html', title='Dashboard', form=form)
 
 
@@ -133,27 +166,47 @@ def dashboard():
     servers = Server.query.all()
     return render_template('dashboard.html', title='Dashboard', data=servers)
 
+@app.route('/toggle_ssh/<server>', methods=['GET', 'POST'])
+@login_required
+def toggle_ssh(server):
+    server = Server.query.filter_by(name=server).first()
+    server.ssh_connection = server.toggle_ssh()
+    db.session.commit()
+    servers = Server.query.all()
+    return render_template('dashboard.html', title='Dashboard', data=servers)
+
+@app.route('/monitoring', methods=['GET', 'POST'])
+@login_required
+def monitoring():
+    servers = Server.query.all()
+    return render_template('monitoring.html', title='Monitoring', data=servers)
+
 @app.route('/update_all_server', methods=['GET', 'POST'])
 @login_required
 def update_all_server():
     servers = Server.query.all()
     for server in servers:
-        server.get_modele()
-        server.get_raminfo()
-        server.get_os()
-        server.get_cpuinfo()
-        server.get_sysinfo()
-        db.session.commit()
-        msg = "Update done for server {}".format(server)
-        flash(msg)
+        test_server = server.test_connect()
+        if not test_server[0]:
+            msg = test_server[1]
+        else:
+            server.get_modele()
+            server.get_raminfo()
+            server.get_os()
+            server.get_cpuinfo()
+            server.get_sysinfo()
+            db.session.commit()
+            msg = "Update done for server {}".format(server)
+            flash(msg)
     return redirect(url_for('dashboard'))
 
 @app.route('/update_server/<server>', methods=['GET', 'POST'])
 @login_required
 def update_server(server):
     server = Server.query.filter_by(name=server).first()
-    if not server.test_ssh():
-        msg = "SSH access failed: Please copy ssh key to {} server".format(server)
+    test_server = server.test_connect()
+    if not test_server[0]:
+        msg = test_server[1]
     else:
         server.get_modele()
         server.get_raminfo()
@@ -170,7 +223,7 @@ def update_server(server):
 def server(server):
         server_x = Server.query.filter_by(name=server).first_or_404()
         posts = Post.query.order_by(Post.timestamp.desc()).filter_by(device=server)
-        return render_template('server.html', server=server_x, posts=posts)
+        return render_template('server.html', server=server_x, posts=posts, os=os)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -192,7 +245,7 @@ def edit_profile():
 def post_delete(id):
     post = Post.query.filter_by(id=id).first()
     if post:
-        if post.user_id == current_user.username:
+        if post.author.username == current_user.username:
             msg_text = 'Post well deleted'
             db.session.delete(post)
             db.session.commit()

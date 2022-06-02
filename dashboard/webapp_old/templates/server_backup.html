@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table>
+        <col style="width:60%">
+        <col style="width:40%">
+        <tr valign="top">
+            <td>
+                <h1> {{ server.name }} {% if server.public_name != None %} <br>{{ server.public_name }}   {% endif %} </h1>
+                <h4> {{ server.address }} {% if server.public_address != '0.0.0.0' %}  <br>{{ server.public_address }} {% endif %}</h4>
+                {% if server.about_me %}<p>{{ server.about_me }}</p>{% endif %}
+            </td>
+            <td>
+                <p> System: {{ server.system_type }}</p>
+                <p> {{ server.modele }}</p>
+                <p> {{ server.os }}</p>
+                <p> {{ server.raminfo }}</p>
+                <p> {{ server.cpuinfo }}</p>
+
+        </tr>
+    </table>
+    <hr>
+
+
+<!-- Tableau de configuration  -->
+
+<table class="disp_server_detail">
+        <col style="width:100%">
+        <thead>
+                <tr>
+                        <th colspan="4">Commandes - Configuration</th>
+                </tr>
+        </thead>
+        <tbody>
+                <tr>
+                        <td><a href="{{ url_for('edit_server', name=server.name) }}">Edit server</a>
+                        <a href="{{ url_for('server_delete', id=server.id) }}"
+  onclick="return confirm('Do you want to permanently delete this server: {{ server.name }}?');" title="Delete Server">delete</a>
+                        <a href="{{ url_for('update_server', server=server.name) }}">Update server data</a></td>
+                        
+
+                 </tr>
+
+        </tbody>
+</table>
+<br></br>
+
+
+<!-- Tableau de Monitoring -->
+
+
+<table class="disp_server_detail">
+        <col style="width:20%">
+        <col style="width:70%">
+        <col style="width:10%">
+        <thead>
+                <tr>
+                        <th colspan="3">Common Monitoring</th>
+                </tr>
+        </thead>
+        <tbody>
+
+                {% if server.test_connect() != "OK" %}
+                    <p class="redcenter"> Not able to update monitoring because {{ server.test_connect()  }}<p>
+                {% else %}
+                    <tr >
+                                <th>Test</th>
+                                <th>Command</th>
+                                <th>Result</th>
+                    </tr>
+                    <tr>
+                            <td>Ping local ip address</td>
+                            <td> ping {{ server.address }} </td>
+                            {% if server.ping_ip() %}<td> &#x1F7E2 </td>
+                            {% else %}<td> &#x1F534 </td>
+                            {% endif %}
+                     </tr>
+                     <tr>
+                            <td>Ping local hostname</td>
+                            <td> ping {{ server.name }} </td>
+                            {% if server.ping_hostname() %}<td> &#x1F7E2  </td>
+                            {% else %}<td> &#x1F534</td>
+                            {% endif %}
+                     </tr>
+                     {% if server.public_server == True %}
+                        <tr>
+                                <td>Ping public ip address</td>
+                                <td> ping {{ server.public_address }} </td>
+                                {% if server.ping_public_ip() %}<td> &#x1F7E2 </td>
+                                {% else %}<td> &#x1F534 </td>
+                                {% endif %}
+                         </tr>
+                         <tr>
+                                <td>Ping public hostname</td>
+                                <td> ping {{ server.public_name }} </td>
+                                {% if server.ping_public_hostname() %}<td> &#x1F7E2  </td>
+                                {% else %}<td> &#x1F534 </td>
+                                {% endif %}
+                         </tr>
+                     {% endif %}
+
+
+                    {% set volumes = server.check_mandatory_volumes() %}
+                    {% if volumes != [''] %}
+                        {% for vol in volumes %}
+                        <tr>
+                                <td>Check Volumes</td>
+                                <td> check mounted volumes {{vol}} </td>
+                                {% if server.check_mounted_volumes(vol) %}<td> &#x1F7E2 </td>
+                                {% else %}<td> &#x1F534 </td>
+                                {% endif %}
+<!--                                 {% set resp = server.check_mandatory_volumes() %}<td>{{ resp }}</td> -->
+        
+                         </tr>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+        
+        </tbody>
+</table>
+
+
+
+
+<br></br>
+
+<!-- Tableau d'informations sur le server -->
+        {% set homepath = os.getcwd() %}
+        {% set server_html_fullpath = homepath + "/webapp/templates/server/" + server.name + ".html" %}
+        {% if os.path.exists(server_html_fullpath) %}
+            {% set server_html_localpath = "/server/" + server.name + ".html" %}
+            {% include server_html_localpath %}
+        {% endif %}
+
+<!-- Tableau de commentaires -->
+
+        {% include "table_post.html" %}
+
+
+{% endblock %}

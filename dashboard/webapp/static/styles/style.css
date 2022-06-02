@@ -1,4 +1,78 @@
-body {
+.margin {
+    width: 100%;
+}
+
+table.myProfile {
+    margin-left:  2em;
+/*    width: 80%;*/
+}
+table.myProfile td{
+    text-align: left;
+    padding:  2rem;
+/*    font-size: 0.8rem;*/
+}
+
+
+
+table.title thead th{
+    font-size: 1.5rem;
+    background-color: #E6ECED;
+}
+
+
+
+table.monitoring {
+    margin-top: 1rem;
+    table-layout:  fixed;
+}
+
+table.monitoring > td:first-child{
+    background-color: silver;
+}
+
+table.monitoring td.green {
+    border-bottom-color: green;
+    border-top-color: green;
+    border-left-color: green;
+    border-right-color: green;
+    border-left-width: 0.15rem;
+    border-right-width: 0.15rem;
+    border-bottom-width: 0.15rem;
+}
+table.monitoring td.red {
+    border-bottom-color: red;
+    border-top-color: red;
+    border-left-color: red;
+    border-right-color: red;
+    border-left-width: 0.2rem;
+    border-right-width: 0.2rem;
+    border-bottom-width: 0.2rem;
+}
+
+.align-right {
+    float: right;
+}
+
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+p.redcenter {
+    text-align: center;
+    color: red;
+}
+
+/*body {
     background: EEE;
     color: dimgray;
 }
@@ -30,15 +104,58 @@ font-style: bold;
 
 table.disp_posts {
     margin-left:  2em;
-    width: 90%;
+    width: 80%;
 }
 table.disp_posts td{
     text-align: left;
-    padding:  0.2rem;
+    padding:  2rem;
     font-size: 0.8rem;
 }
 
+tr.left > td{
+    text-align: left;
+    padding:  0.2rem;
+    padding-left:  0.4rem;
+    font-size: 0.8rem;
+}
+
+div.base > a{
+padding:  1rem;
+}
+
+td.green {
+    border-bottom-color: green;
+    border-left-color: green;
+    border-right-color: green;
+    border-left-width: 0.15rem;
+    border-right-width: 0.15rem;
+    border-bottom-width: 0.15rem;
+}
+td.red {
+    border-bottom-color: red;
+    border-left-color: red;
+    border-right-color: red;
+    border-left-width: 0.2rem;
+    border-right-width: 0.2rem;
+    border-bottom-width: 0.2rem;
+}
 
 
+table.Monitoring th{
+    background-color: grey;
+    padding:  0.2rem;
+    text-align: left;
+    margin-top: 1rem;
+}
+table.Monitoring {
+    margin-top: 1rem;
+}
 
+table.Monitoring a {
+    font-size: 0.8rem;
+}
+.align-right {
+    float: right;
+}
 
+*/
