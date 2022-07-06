@@ -14,6 +14,7 @@ class Config(object):
 	MAIL_USERNAME = os.environ.get('maxime')
 	MAIL_PASSWORD = os.environ.get('Burnotte_67')
 	ADMINS = ['maxime@ecgs.lu']
+	APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 
 

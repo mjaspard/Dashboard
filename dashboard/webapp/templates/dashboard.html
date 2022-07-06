@@ -28,7 +28,7 @@
                                     <th>System</th>
                                     <th>Modele</th>
                                     <th>OS version</th>
-                                    <th>Memory</th>
+                                    <th>Memory RAM</th>
                                     <th><a  href="{{ url_for('update_all_server') }}" onclick="return confirm('Do you want to update all servers ? It will take a moment!');">Update/Edit</a></th>
                         </tr>
                         {% for server in data %}
@@ -37,8 +37,8 @@
 
                                 <tr>
                                         <td><input type="checkbox" name="ssh" {{ status_ssh }} onclick="window.location.href='{{ url_for('toggle_ssh', server=server.name) }}';">
-                                        <td><p> {{ server.name }} {% if server.public_name != None %} <br>{{ server.public_name }}   {% endif %}</p></td>
-                                        <td><p> {{ server.address }} {% if server.public_address != '0.0.0.0' %}  <br>{{ server.public_address }} {% endif %}</p></td>                       
+                                        <td><p> {{ server.name }} {% if server.public_server %} <br>{{ server.public_name }}   {% endif %}</p></td>
+                                        <td><p> {{ server.address }} {% if server.public_server %}  <br>{{ server.public_address }} {% endif %}</p></td>                       
                                         <td><p> {{ server.user }} </p></td>
                                         <td><p> {{ server.system_type }}</p></td>
                                         <td><p> {{ server.modele }}</p></td>

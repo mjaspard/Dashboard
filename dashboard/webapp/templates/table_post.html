@@ -24,7 +24,9 @@
                         <td  style="white-space: pre-line"><a href="{{ url_for('user', username=post.author.username) }}">{{ post.author.username }}</a> says:<br>{{ post.body }}</td>
                         <td> {{ post.device }} </td>
                         <td class="date"> {{ post.timestamp.strftime("%d/%m/%y %X") }} </td>
-                        <td><a href="{{ url_for('post_delete', id=post.id) }}" onclick="return confirm('Do you want to permanently delete the comment: {{ post.body }}?');" title="Delete Comment">delete</a></td>
+                        <td><a href="{{ url_for('post_modify', id=post.id) }}" title="Modify Comment">edit</a>
+                        <a href="{{ url_for('post_delete', id=post.id) }}" onclick="return confirm('Do you want to permanently delete the comment: {{ post.body }}?');" title="Delete Comment">delete</a>
+                        </td>
                  </tr>
                 {% endfor %}
         

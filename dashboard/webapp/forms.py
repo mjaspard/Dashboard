@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed, FileRequired 
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, IPAddress, Length
-from webapp.models import User, Server
+from webapp.models import User, Server, Server_info
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -75,6 +76,13 @@ class PostForm(FlaskForm):
     device = SelectField('Select device', choices=Server.query.all())
     submit = SubmitField('Submit')
 
+
+class ServerInfoForm(FlaskForm):
+    service = TextAreaField('Add server service', validators=[DataRequired(), Length(min=1, max=30)])
+    informations = TextAreaField('Add details', validators=[DataRequired(), Length(min=1, max=1000)])
+    server_name = StringField('Local hostname', validators=[DataRequired()])
+    picture = FileField('Document', validators=[FileAllowed(['jpg', 'png', 'pdf', 'txt'], 'Images only!')])
+    submit = SubmitField('Submit')
 
 class ResetPasswordRequestForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])

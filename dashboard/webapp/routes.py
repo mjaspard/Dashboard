@@ -1,14 +1,14 @@
 from webapp import app 
 from flask import render_template, flash , redirect, url_for, request
-from webapp.forms import LoginForm, RegistrationForm, AddServerForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
+from webapp.forms import LoginForm, RegistrationForm, AddServerForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, ServerInfoForm
 from flask_login import current_user, login_user, logout_user, login_required
-from webapp.models import User, Server, Post
+from webapp.models import User, Server, Post, Server_info
 from werkzeug.urls import url_parse
 from webapp import db
 from datetime import datetime
 import subprocess
 import re
-import os
+import os, os.path
 from webapp.email import send_password_reset_email
 
 @app.before_request
@@ -110,11 +110,6 @@ def AddServer():
     form = AddServerForm(1)
     if form.validate_on_submit():
         server = Server(address=form.address.data, name=form.name.data, public_server=form.public_server.data, public_address=form.public_address.data, public_name=form.public_name.data, user=form.user.data, about_me=form.about_me.data)
-        # server.get_sysinfo()
-        # server.get_modele()
-        # server.get_raminfo()
-        # server.get_os()
-        # server.get_cpuinfo()
         db.session.add(server)
         db.session.commit()
         flash('Thanks for adding this server!')
@@ -163,7 +158,7 @@ def edit_server(name):
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    servers = Server.query.all()
+    servers = Server.query.order_by(Server.ssh_connection, Server.user).all()
     return render_template('dashboard.html', title='Dashboard', data=servers)
 
 @app.route('/toggle_ssh/<server>', methods=['GET', 'POST'])
@@ -178,7 +173,7 @@ def toggle_ssh(server):
 @app.route('/monitoring', methods=['GET', 'POST'])
 @login_required
 def monitoring():
-    servers = Server.query.all()
+    servers = Server.query.order_by(Server.user).all()
     return render_template('monitoring.html', title='Monitoring', data=servers)
 
 @app.route('/update_all_server', methods=['GET', 'POST'])
@@ -223,7 +218,8 @@ def update_server(server):
 def server(server):
         server_x = Server.query.filter_by(name=server).first_or_404()
         posts = Post.query.order_by(Post.timestamp.desc()).filter_by(device=server)
-        return render_template('server.html', server=server_x, posts=posts, os=os)
+        infos = Server_info.query.filter_by(server_name=server)
+        return render_template('server.html', server=server_x, posts=posts, os=os, infos=infos)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -257,6 +253,23 @@ def post_delete(id):
     return redirect(request.referrer)
 
 
+@app.route('/post_modify/<id>', methods=['GET', 'POST'])
+@login_required
+def post_modify(id):
+    posts = Post.query.order_by(Post.timestamp.desc()).filter_by(id=id)
+    post = Post.query.filter_by(id=id).first()
+    form = PostForm()
+    if form.validate_on_submit():
+        post.body = form.post.data
+        post.device = form.device.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('index'))
+    elif request.method == 'GET':
+        form.post.data = post.body
+        form.device.data = post.device
+    return render_template('index.html', title='Home', posts=posts, form=form)
+
 
 @app.route('/server_delete/<id>')
 @login_required
@@ -272,3 +285,62 @@ def server_delete(id):
             msg_text = 'Not possible, only superuser are allowed to delete'
             flash(msg_text)
     return redirect(url_for('index'))
+
+
+
+@app.route('/add_server_info/<server_name>', methods=['GET', 'POST'])
+@login_required
+def add_server_info(server_name):
+    form = ServerInfoForm()
+    if form.validate_on_submit():
+        new_info = Server_info(service=form.service.data, informations=form.informations.data, server_name=form.server_name.data)
+        file = form.picture.data
+        if file:
+            new_info.attach_picture(file)
+        db.session.add(new_info)
+        db.session.commit()
+        flash('Thanks for adding precious informations to this server')
+        return redirect(url_for('server', server=new_info.server_name))
+    elif request.method == 'GET':
+        form.server_name.data = server_name
+        # form.service.data = 'test'
+        # form.informations.data = 'test'
+    return render_template('edit_server_info.html', title='Add information to this server', form=form)
+
+
+@app.route('/server_info_delete/<id>')
+@login_required
+def server_info_delete(id):
+    info = Server_info.query.filter_by(id=id).first()
+    if info:
+        info.delete_picture()
+        msg_text = 'Info well deleted'
+        db.session.delete(info)
+        db.session.commit()
+        flash(msg_text)
+    return redirect(request.referrer)
+
+
+@app.route('/server_info_modify/<id>', methods=['GET', 'POST'])
+@login_required
+def server_info_modify(id):
+    info = Server_info.query.filter_by(id=id).first()
+    form = ServerInfoForm()
+    if form.validate_on_submit():
+        info.server_name = form.server_name.data
+        info.service = form.service.data
+        info.informations = form.informations.data
+        file = form.picture.data
+        if file:
+            info.attach_picture(file)
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('server', server=info.server_name))
+    elif request.method == 'GET':
+        form.server_name.data = info.server_name
+        form.service.data = info.service
+        form.informations.data = info.informations
+    return render_template('edit_server_info.html', title='Modify information to this server', form=form)
+
+
+

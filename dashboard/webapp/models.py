@@ -2,6 +2,8 @@
 from datetime import datetime
 from webapp import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+from flask import current_app
 from flask_login import UserMixin
 from webapp import login
 from hashlib import md5
@@ -66,6 +68,47 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+class Server_info(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    service = db.Column(db.String(30))
+    informations = db.Column(db.String(1000))
+    server_name = db.Column(db.String(30), index=True)
+    def __repr__(self):
+        return '<server info  {}>'.format(self.service)
+
+    def get_picture(self, path):
+        pictures = []
+        if os.path.isdir(path):
+            for file in os.listdir(path):
+                pictures.append(file)
+            return pictures
+        else:
+            return None
+
+    def attach_picture(self, file):
+        filename = secure_filename(file.filename)
+        filepath = self.get_picture_fullpath()
+        if not os.path.isdir(filepath):
+            os.makedirs(filepath)
+        file.save(os.path.join(filepath, filename))
+
+
+    def delete_picture(self):
+        filepath = self.get_picture_fullpath()
+        if os.path.isfile(filepath):
+            for file in os.listdir(filepath):
+                os.remove(os.path.join(filepath, file))
+                os.rmdir(filepath)
+
+
+    def get_picture_fullpath(self):
+        path = os.path.join(current_app.root_path + '/static/pictures/' + self.server_name + '/' + self.service)
+        return path
+
+    def get_picture_localpath(self):
+        path = os.path.join('/pictures/' + self.server_name + '/' + self.service)
+        return path
 
 
 @login.user_loader

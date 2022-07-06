@@ -6,7 +6,8 @@ from flask_login import LoginManager
 from logging.handlers import RotatingFileHandler
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
-import os
+from werkzeug.utils import secure_filename
+import os, os.path
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -17,9 +18,11 @@ migrate = Migrate(app, db)
 login = LoginManager(app)
 
 
-
 login.login_view = 'login'
 from webapp import routes, models, errors
+
+
+
 
 
 # Manage email

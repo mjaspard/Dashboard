@@ -156,6 +156,43 @@
 
 <br></br>
 
+<!-- Tableau d'informations sur le server -->
+
+
+    <table class="table table-hover table-bordered title">
+            <col style="width:15%">
+            <col style="width:85%">
+
+            <thead>
+                    <tr>
+                            <th colspan="5">Informations</th>
+                    </tr>
+            </thead>
+            <tbody>
+                    <tr >
+                                <th>Services</th>
+                                <th>Informations</th>
+        
+                    </tr>
+
+                    {% if server.get_server_info() != 0 %}
+                    {% for service, details in server.get_server_info() %}
+
+                        <tr class="left">
+
+                                <td>{{ service }}</td>
+                                {% if service == 'Images' %}                                    
+                                    <td>{% for image, path in details.items() %}<a href="{{url_for('static', filename=path)}}">{{ path }} (Click to open)<br>{% endfor %}</td>                 
+                                {% else %}
+                                    <td>{% for detail in details %}{{ detail }}<br>{% endfor %}</td>
+                                {% endif %}
+
+                         </tr>
+                    {% endfor %}{%endif%}
+            
+            </tbody>
+    </table>
+    <br></br>
 
 <!-- Tableau d'informations sur le server -->
         {% include "table_info_server.html" %} 

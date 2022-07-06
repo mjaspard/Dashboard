@@ -1,0 +1,51 @@
+
+<!-- Tableau d'informations sur le server -->
+
+
+    <table class="table table-hover table-bordered title">
+            <col style="width:15%">
+            <col style="width:70%">
+            <col style="width:15%">
+
+
+            <thead>
+                    <tr>
+                            <th colspan="3">Informations</th>
+                    </tr>
+            </thead>
+            <tbody>
+                    <tr >
+                                <th>Service</th>
+                                <th>Informations</th>
+                                <th>Options</th>
+        
+                    </tr>
+
+                    {% for info in infos %}
+                        {% set picture_path = info.get_picture_fullpath() %}
+                        {% set pictures = info.get_picture(picture_path) %}
+
+                        <tr>
+
+                                <td>{{ info.service }}</td>
+                                <td>{{ info.informations }}<br>
+                                        {% if pictures != [] %}
+                                                {% for picture in pictures %}
+                                                        <a>{{ picture }}..
+                                                        {% endfor %}</a>      
+                                        {% endif %}
+                                </td>  
+
+                                <td>
+                                        <a href="{{ url_for('server_info_modify', id=info.id) }}" title="Modify">edit</a>
+                                         <a href="{{ url_for('server_info_delete', id=info.id) }}" onclick="return confirm('Do you want to permanently delete this information: {{ info.service }}?');" title="Delete Informations">delete</a> </td>
+                        
+
+                         </tr>
+                    {% endfor %}
+            
+            </tbody>
+    </table>
+    <br></br>
+
+
