@@ -255,7 +255,7 @@ class Server(db.Model):
             return ""
         resp = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
         resp = re.search(r'[0-9].*[TG].', str(resp))[0]
-        resp = "RAM: {}".format(resp)
+        resp = "{}".format(resp)
         self.raminfo = resp
         return resp
 

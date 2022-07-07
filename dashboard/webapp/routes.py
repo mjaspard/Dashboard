@@ -158,7 +158,7 @@ def edit_server(name):
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    servers = Server.query.order_by(Server.ssh_connection, Server.user).all()
+    servers = Server.query.order_by(Server.ssh_connection.desc(), Server.address).all()
     return render_template('dashboard.html', title='Dashboard', data=servers)
 
 @app.route('/toggle_ssh/<server>', methods=['GET', 'POST'])
@@ -167,7 +167,7 @@ def toggle_ssh(server):
     server = Server.query.filter_by(name=server).first()
     server.ssh_connection = server.toggle_ssh()
     db.session.commit()
-    servers = Server.query.all()
+    servers = Server.query.order_by(Server.ssh_connection.desc(), Server.address).all()
     return render_template('dashboard.html', title='Dashboard', data=servers)
 
 @app.route('/monitoring', methods=['GET', 'POST'])

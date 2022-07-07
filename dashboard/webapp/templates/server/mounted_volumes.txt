@@ -15,3 +15,7 @@ the-beast: Seismo20TA, TM-the-beast
 luna: hpe-4tb-ftp_data, previous_bootdisc_suse
 
 dellrack: 1650, 3600, 3601, 3602, dellrack_data, syno_sar
+
+dell3: 1650, 3600, 3601, 3602, dell3raid5, syno_sar, syno-data
+
+hp385: 1650, 3600, 3601, 3602, hp385raid5, syno_sar, syno-data
