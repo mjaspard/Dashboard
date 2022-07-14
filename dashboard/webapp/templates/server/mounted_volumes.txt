@@ -10,7 +10,7 @@ bern-gorisk: DataRDC, Quadra-bern-gorisk-TM
 
 seiscomp-main: SDSdisk, SDSdisk8TB, SDSdisk-Backup, TM-seiscomp-main
 
-the-beast: Seismo20TA, TM-the-beast
+the-beast: Seismo20TA, TM-the-beast, TM-the-beast
 
 luna: hpe-4tb-ftp_data, previous_bootdisc_suse
 
@@ -19,3 +19,7 @@ dellrack: 1650, 3600, 3601, 3602, dellrack_data, syno_sar
 dell3: 1650, 3600, 3601, 3602, dell3raid5, syno_sar, syno-data
 
 hp385: 1650, 3600, 3601, 3602, hp385raid5, syno_sar, syno-data
+
+hp-storeeasy: hp-1650-Data_Share1, hp-D3601-Data_RAID6, hp-D3600-Data_Share1, hp-D3602-Data_RAID5
+
+TM-the-beast

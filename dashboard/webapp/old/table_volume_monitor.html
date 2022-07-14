@@ -1,0 +1,92 @@
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script type="text/javascript">
+
+function renderChart(id, xValues, yValues, barColors, name){
+        console.log("inside the function:" + id)
+        var ctx = document.getElementById(id);
+        console.log("inside the function ctx:" + ctx)
+        var myChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+                    labels: xValues,
+                    datasets: [{
+                              backgroundColor: barColors,
+                              data: yValues
+                            }]
+                  },
+        options: {
+            title: {
+                      display: true,
+                      text: name
+                    }
+          }
+        });
+}
+
+</script>
+
+
+<!-- Tableau d'informations sur le server -->
+
+{% set volumes_data = server.check_vol_capacity() %}
+
+   <table class="table table-hover table-bordered title">
+        <thead>
+                <tr>
+                        <th colspan="100%">Volumes monitoring</th>
+                </tr>
+        </thead>
+        <tbody>
+
+
+                <tr>
+                        {% set i = 0 %}
+                        {% for vol in volumes_data %}
+                                {% set counter = ( counter | default(0) ) + 1 %}
+                                {% set vol_used = volumes_data[vol][2] %}
+                                {% set vol_free = 100 - vol_used %}
+                                {% set chart_id = vol %}
+                                {% set i = volumes_data[vol][3] %}
+                        {% endfor %}
+                               
+                                <td>{{volumes_data[vol][0]}} {{volumes_data[vol][1]}} {{volumes_data[vol][2]}}<br>
+                                {{vol_used }}, {{ vol_free}}<br>
+                      <!--           <canvas style="width:100%;max-width:700px"></canvas> -->
+                                </td>
+                                
+
+                                <script>
+                                        var i = {{ i }}
+                                        var canvas = document.createElement("canvas");
+                                        canvas.setAttribute("id", "myChart"+i);
+                                        canvas.setAttribute("id", "style=\"width:100%;max-width:700px\"");
+                                        console.log("counter = " + i)
+
+                                        var j = i.toString()
+                                        var xValues = ["Used", "free"];
+                                        var yValues = [{{vol_used}}, {{vol_free}}];
+                                        console.log(yValues)
+                                        if ({{vol_used}}> 90){ 
+                                                var color_used = 'red' } 
+                                        else {
+                                                var color_used = 'green' }
+                                        var barColors = [color_used, "grey"];
+                                        var test = "myChart"+i
+                                        renderChart(test, xValues, yValues, barColors, "{{vol}}")
+
+  
+
+                                </script>
+
+
+
+                </tr>
+
+        
+        </tbody>
+</table>
+<br></br>
+
+
+

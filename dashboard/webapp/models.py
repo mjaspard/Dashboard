@@ -131,6 +131,8 @@ class Server(db.Model):
     cpuinfo = db.Column(db.String(30), index=True)
     system_type = db.Column(db.String(30), index=True)
     ssh_connection = db.Column(db.Boolean, default=False, index=True)
+    mount_volumes = db.Column(db.Boolean, default=False, index=True)
+
 
 
     def __repr__(self):
@@ -316,25 +318,29 @@ class Server(db.Model):
 
 
 
-
+    def get_mounted_volumes(self):
+        i = 0
+        volumes = "[]"
+        home = os.getcwd()
+        file = "{}/webapp/templates/server/mounted_volumes.txt".format(home)
+        with open (file, "r") as f:
+            for line in f:
+                    server_x = "{}:".format(self.name)
+                    if re.search(server_x, line):
+                            volumes = line.split(":")[1]
+                            volumes = re.search(r"\w.*\w", volumes)[0]  # Keep only alaphanum (removes spaces)
+                            break
+                    else:
+                            volumes = ''
+        if volumes == '':
+            return False
+        return volumes
 
     @deco_test_ssh
     def check_mounted_all_volumes(self):
-            i = 0
-            volumes = "[]"
-            home = os.getcwd()
-            file = "{}/webapp/templates/server/mounted_volumes.txt".format(home)
-            with open (file, "r") as f:
-                for line in f:
-                        server_x = "{}:".format(self.name)
-                        if re.search(server_x, line):
-                                volumes = line.split(":")[1]
-                                volumes = re.search(r"\w.*\w", volumes)[0]  # Keep only alaphanum (removes spaces)
-                                break
-                        else:
-                                volumes = ''
-            if volumes == '':
-                return False
+        volumes  = self.get_mounted_volumes() 
+        i = 0
+        if volumes:
             volumes = volumes.split(",")
             for vol in volumes:
                 x = self.check_mounted_volumes(vol)[0]
@@ -410,8 +416,6 @@ class Server(db.Model):
             return False
 
 
-
-
     def test(self, path_backup, max_days):
         folder = path_backup.split("/")[-1]
         cmd = 'find ' + path_backup + ' -name ' + folder + ' -maxdepth 1 -mtime -' + str(max_days) + ' | wc -l | grep -o [0-9].*'
@@ -422,4 +426,58 @@ class Server(db.Model):
             return resp
         else:
             return resp
+
+
+    def check_vol_capacity(self):
+        values = {}
+        if (self.get_mounted_volumes()) and (self.mount_volumes):
+            volumes = self.get_mounted_volumes() 
+            volumes = volumes.split(",")
+            i = 0
+            for vol in volumes:
+                vol = vol.strip(' ')
+                volume = '/Volumes/{}'.format(vol)
+                filter1 = '{\'print $2\'}'
+                cmd = ['df',  '-h', volume]
+                resp = subprocess.Popen(('df',  '-h', volume), stdout=subprocess.PIPE)
+                resp1 = subprocess.check_output(('grep', volume), stdin=resp.stdout) 
+                resp1 = resp1.decode('ascii')
+                total = resp1.split(' ')[3]
+                total_vol = int(re.search(r"\d*",total)[0])
+                total_unit = re.search(r"\D{2}",total)[0]
+                used_vol = re.search(r"\d+%", resp1)[0]
+                used_vol = int(re.search(r"\d*", used_vol)[0]) # in percent
+                cnt = i
+                i += 1
+                values[vol] = [total_vol, total_unit, used_vol, cnt]
+                # return values, len(values)
+        elif (self.check_mandatory_volumes() != ['']) and (not self.mount_volumes):
+            volumes = self.check_mandatory_volumes()
+            i = 0
+            for vol in volumes:
+                cmd = 'df -h | grep ' + vol 
+                resp = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
+                resp = resp[0].decode('ascii')
+                try:
+                    total = re.search(r"\s\d+\.*\d+[G|T]i*", resp)[0] # search number + unit total volume icluding decimal   
+                    total_vol = re.search(r"\d+\.*\d+",total)[0] # remove unit
+                    total_unit = re.search(r"[G|T]i*",total)[0]  # remove numbers
+                    used_vol = re.search(r"\d+\.*\d+%", resp)[0]
+                    used_vol = int(re.search(r"\d+\.*\d+", used_vol)[0]) # remove percent
+                    cnt = i
+                    i += 1
+                except:
+                    continue
+
+                # values[vol] = resp
+                values[vol] = [total_vol, total_unit, used_vol, cnt]
+        else:
+            return False, False
+        return values, len(values)
+
+
+
+
+
+
 

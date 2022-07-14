@@ -1,0 +1,127 @@
+
+<!-- Tableau d'informations sur le server -->
+
+{% set volumes_data, num = server.check_vol_capacity() %}
+
+
+   <table class="table table-hover table-bordered title canevas">
+
+        <thead>
+                <tr>
+                        <th colspan="100%">Volumes monitoring</th>
+                </tr>
+        </thead>
+
+
+        <tbody id="body">
+
+
+        </tbody>
+
+   
+
+</table>
+<br></br>
+
+<!-- <canvas style="width:100%"></canvas>  -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script>
+console.log("there is {{ num}} graphics to display");
+const table = document.getElementById("body");
+let row = table.insertRow();
+
+var vol_data_js = {{ volumes_data | tojson | safe}}
+var i = 0
+Object.keys(vol_data_js).forEach(function(key) {
+
+        console.log('Key : ' + key + ', Value : ' + vol_data_js[key])
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("id", "myChart"+i);
+        canvas.setAttribute("class", "vol_monitor");
+        console.log("create canevas : "+ i)
+        let cell= row.insertCell(i);
+        table.rows[0].cells[i].appendChild(canvas);
+        i++;
+})
+
+// if (i == 1){
+//                 const chart = document.getElementById("myChart0");
+//                 chart.className = 'vol_monitor_1Vol';     
+// }
+// if (i == 2){
+//                 const chart = document.getElementById("myChart0");
+//                 const chart2 = document.getElementById("myChart1");
+//                 chart.className = 'vol_monitor_2Vol';     
+//                 chart2.className = 'vol_monitor_2Vol';   
+// }
+
+</script>
+<script>
+
+var i = 0
+Object.keys(vol_data_js).forEach(function(key) {
+        var vol_used = 55
+        var chartID = "myChart"+i
+        console.log("ChartID = "+ chartID)
+        var ctx = document.getElementById(chartID).getContext('2d');
+        console.log(ctx)
+        var used_ = vol_data_js[key][2];
+        var free_ = 100 - used_ ;
+        var xValues = ["Used ("+used_+"%)", "free ("+free_+"%)"];
+        var yValues = [used_, free_];
+        console.log(yValues)
+        if (used_ > 95){ 
+                var color_used = 'red' } 
+        else if(used_ > 85){
+                var color_used = 'orange' } 
+        else {
+                var color_used = 'green' }
+        var barColors = [color_used, "lightgrey"];
+        var myChart = new Chart(ctx, {
+           type: "doughnut",
+                  data: {
+                            labels: xValues,
+                            datasets: [{
+                                      backgroundColor: barColors,
+                                      data: yValues
+                                    }]
+                          },
+                options: {
+                        cutoutPercentage : 80,
+                        // responsive: false,
+                        // maintainAspectRatio: false,
+                        aspectRatio: 1.8,
+
+                        title: {
+                              display: true,
+                              text: key + ' [' + vol_data_js[key][0] + vol_data_js[key][1] + ']'
+                            },
+                        
+                        legend:{
+                                position: "bottom",
+                                align: "center",
+                                labels:{ 
+                                        boxWidth: 20,
+                                        fontSize: 10
+                                        }
+                                },
+
+                        }
+                });
+
+        i++;
+})
+
+
+
+
+
+
+</script>
+
+
+
+
+
+

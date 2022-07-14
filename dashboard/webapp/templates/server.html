@@ -15,7 +15,7 @@
                     <p> System: {{ server.system_type }}</p>
                     <p> {{ server.modele }}</p>
                     <p> {{ server.os }}</p>
-                    <p> {{ server.raminfo }}</p>
+                    <p> RAM: {{ server.raminfo }}</p>
                     <p> {{ server.cpuinfo }}</p>
                 </td>
             {% endif %} 
@@ -156,6 +156,12 @@
 
 <br></br>
 
+<!-- Tableau volumes monitoring -->
+
+        {% include "table_volume_monitor.html" %} 
+
+<!-- <p>{{ server.check_mandatory_volumes() }} </p>
+<p>{{ server.check_vol_capacity() }} </p> -->
 
 <!-- Tableau d'informations sur le server -->
         {% include "table_info_server.html" %} 

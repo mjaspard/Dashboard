@@ -16,7 +16,9 @@
                 <col style="width:10%">
                 <thead>
                         <tr>
-                                <th colspan="9">Servers registred for monitoring</th>
+                                <th colspan="9">Servers registred for monitoring
+                                <a  class="align-right" href="{{ url_for('update_all_server') }}" onclick="return confirm('Do you want to update all servers ? It will take a moment!');">Update all data</a>
+                                </th>
                         </tr>
                 </thead>
                 <tbody>
@@ -29,7 +31,7 @@
                                     <th>Modele</th>
                                     <th>OS version</th>
                                     <th>Memory RAM</th>
-                                    <th><a  href="{{ url_for('update_all_server') }}" onclick="return confirm('Do you want to update all servers ? It will take a moment!');">Update/Edit</a></th>
+                                    <th>Ping status</th>
                         </tr>
                         {% for server in data %}
                                 {% if server.ssh_connection %}{% set status_ssh = 'checked' %}{% else %}{% set status_ssh = 'unchecked' %}{% endif %}
@@ -37,14 +39,15 @@
 
                                 <tr>
                                         <td><input type="checkbox" name="ssh" {{ status_ssh }} onclick="window.location.href='{{ url_for('toggle_ssh', server=server.name) }}';">
-                                        <td><p> {{ server.name }} {% if server.public_server %} <br>{{ server.public_name }}   {% endif %}</p></td>
+                                        <td><p><a  href="{{ url_for('server', server=server.name) }}">{{ server.name }} {% if server.public_server %} <br>{{ server.public_name }}   {% endif %}</a></p></td>
                                         <td><p> {{ server.address }} {% if server.public_server %}  <br>{{ server.public_address }} {% endif %}</p></td>                       
                                         <td><p> {{ server.user }} </p></td>
                                         <td><p> {{ server.system_type }}</p></td>
                                         <td><p> {{ server.modele }}</p></td>
                                         <td><p> {{ server.os }}</p></td>
                                         <td><p> {{ server.raminfo }}</p></td>
-                                        <td><p><a  href="{{ url_for('server', server=server.name) }}"> Update/Edit</a></p></td>
+                                        <!-- <td><p><a  href="{{ url_for('server', server=server.name) }}"> Update/Edit</a></p></td> -->
+                                        {% if server.ping_ip() %}<td> &#x1F7E2 </td>{% else %}<td> &#x1F534 </td>{% endif %}
                                  </tr>
         <!--                         {% if server.ssh_connection == True %} -->
         <!--                          {% endif %} -->

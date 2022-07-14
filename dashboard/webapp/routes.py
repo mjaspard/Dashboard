@@ -109,7 +109,9 @@ def user(username):
 def AddServer():
     form = AddServerForm(1)
     if form.validate_on_submit():
-        server = Server(address=form.address.data, name=form.name.data, public_server=form.public_server.data, public_address=form.public_address.data, public_name=form.public_name.data, user=form.user.data, about_me=form.about_me.data)
+        server = Server(address=form.address.data, name=form.name.data, public_server=form.public_server.data, 
+            public_address=form.public_address.data, public_name=form.public_name.data, user=form.user.data, 
+            about_me=form.about_me.data, ssh_connection = form.ssh_connection.data, mount_volumes = form.mount_volumes.data)
         db.session.add(server)
         db.session.commit()
         flash('Thanks for adding this server!')
@@ -133,6 +135,7 @@ def edit_server(name):
         server_update.user = form.user.data
         server_update.about_me = form.about_me.data
         server_update.ssh_connection = form.ssh_connection.data
+        server_update.mount_volumes = form.mount_volumes.data
         db.session.commit()
         flash('Thanks for modifying this server!')
         return redirect(url_for('server', server=server_update.name))
@@ -152,6 +155,7 @@ def edit_server(name):
         form.about_me.data = server_current.about_me
         form.user.data = server_current.user
         form.ssh_connection.data = server_current.ssh_connection
+        form.mount_volumes.data = server_current.mount_volumes
     return render_template('edit_server.html', title='Dashboard', form=form)
 
 

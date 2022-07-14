@@ -31,7 +31,8 @@ class RegistrationForm(FlaskForm):
 
 
 class AddServerForm(FlaskForm):
-    ssh_connection = BooleanField('SSH connection')
+    ssh_connection = BooleanField('SSH connection (only MacOS or Linux)')
+    mount_volumes = BooleanField('Mount Volumes (Windows)')
     user = StringField('Login User', validators=[DataRequired()])
     address = StringField('Local IP address', validators=[DataRequired(), IPAddress(ipv4=True, ipv6=False, message=None)])
     name = StringField('Local hostname', validators=[DataRequired()])

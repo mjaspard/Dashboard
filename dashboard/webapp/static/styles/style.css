@@ -49,6 +49,10 @@ table.monitoring td.red {
     border-bottom-width: 0.2rem;
 }
 
+table.canevas td{
+    max-width: 25%;
+}
+
 .align-right {
     float: right;
 }
@@ -71,6 +75,27 @@ p.redcenter {
     text-align: center;
     color: red;
 }
+
+canvas.vol_monitor{
+    width: 100%;
+}
+/*canvas.vol_monitor_1Vol{
+    max-width: 25%;
+}
+canvas.vol_monitor_2Vol{
+    width: 50%;
+    width: 50%;
+}*/
+
+
+
+/*table.canevas{
+  table-layout: fixed ;
+  width: 100%;
+}*/
+
+
+
 
 /*body {
     background: EEE;
