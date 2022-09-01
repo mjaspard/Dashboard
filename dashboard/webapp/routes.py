@@ -111,7 +111,8 @@ def AddServer():
     if form.validate_on_submit():
         server = Server(address=form.address.data, name=form.name.data, public_server=form.public_server.data, 
             public_address=form.public_address.data, public_name=form.public_name.data, user=form.user.data, 
-            about_me=form.about_me.data, ssh_connection = form.ssh_connection.data, mount_volumes = form.mount_volumes.data)
+            about_me=form.about_me.data, ssh_connection = form.ssh_connection.data, mount_volumes = form.mount_volumes.data,
+            mandatory_volumes = form.mandatory_volume.data)
         db.session.add(server)
         db.session.commit()
         flash('Thanks for adding this server!')
@@ -136,6 +137,7 @@ def edit_server(name):
         server_update.about_me = form.about_me.data
         server_update.ssh_connection = form.ssh_connection.data
         server_update.mount_volumes = form.mount_volumes.data
+        server_update.mandatory_volumes = form.mandatory_volumes.data
         db.session.commit()
         flash('Thanks for modifying this server!')
         return redirect(url_for('server', server=server_update.name))
@@ -156,6 +158,7 @@ def edit_server(name):
         form.user.data = server_current.user
         form.ssh_connection.data = server_current.ssh_connection
         form.mount_volumes.data = server_current.mount_volumes
+        form.mandatory_volumes.data = server_current.mandatory_volumes
     return render_template('edit_server.html', title='Dashboard', form=form)
 
 
@@ -174,7 +177,7 @@ def toggle_ssh(server):
     servers = Server.query.order_by(Server.ssh_connection.desc(), Server.address).all()
     return render_template('dashboard.html', title='Dashboard', data=servers)
 
-@app.route('/monitoring', methods=['GET', 'POST'])
+@app.route('/mandatory_volumes', methods=['GET', 'POST'])
 @login_required
 def monitoring():
     servers = Server.query.order_by(Server.user).all()

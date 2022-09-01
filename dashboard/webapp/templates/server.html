@@ -160,8 +160,9 @@
 
         {% include "table_volume_monitor.html" %} 
 
-<!-- <p>{{ server.check_mandatory_volumes() }} </p>
-<p>{{ server.check_vol_capacity() }} </p> -->
+<!-- <p>{#{ server.check_mandatory_volumes() }#} </p> -->
+<!-- <p>{#{ server.check_vol_capacity() }#} </p> -->
+<!-- <p>{#{ server.read_local_storage() }#} </p> -->
 
 <!-- Tableau d'informations sur le server -->
         {% include "table_info_server.html" %} 

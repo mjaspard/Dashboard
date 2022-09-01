@@ -29,59 +29,51 @@
 <script>
 console.log("there is {{ num}} graphics to display");
 const table = document.getElementById("body");
-// let row_0 = table.insertRow();
+let row = table.insertRow();
 
-var vol_data_js = {{ volumes_data | tojson | safe}};
-
-var i = 0;
-var j = 0;
-var k = 0;
-for (l = 0; l < 10; l++){
-    eval('let row_' + l + ' = table.insertRow()');   
-}
-
-
-
+var vol_data_js = {{ volumes_data | tojson | safe}}
+var i = 0
 Object.keys(vol_data_js).forEach(function(key) {
 
-        eval('var row_' + k + ' = table.insertRow()');
         console.log('Key : ' + key + ', Value : ' + vol_data_js[key])
         var canvas = document.createElement("canvas");
         canvas.setAttribute("id", "myChart"+i);
         canvas.setAttribute("class", "vol_monitor");
         console.log("create canevas : "+ i)
-        eval('let cell= row_' + k + '.insertCell(j)');
-        table.rows[k].cells[j].appendChild(canvas);
+        let cell= row.insertCell(i);
+        table.rows[0].cells[i].appendChild(canvas);
         i++;
-        j++;
-        if (i >= 4){
-                // eval('var row_' + k + ' = table.insertRow()');
-                k++;
-                }
-
 })
 
+// if (i == 1){
+//                 const chart = document.getElementById("myChart0");
+//                 chart.className = 'vol_monitor_1Vol';     
+// }
+// if (i == 2){
+//                 const chart = document.getElementById("myChart0");
+//                 const chart2 = document.getElementById("myChart1");
+//                 chart.className = 'vol_monitor_2Vol';     
+//                 chart2.className = 'vol_monitor_2Vol';   
+// }
 
 </script>
 <script>
 
 var i = 0
 Object.keys(vol_data_js).forEach(function(key) {
+        var vol_used = 55
         var chartID = "myChart"+i
         console.log("ChartID = "+ chartID)
         var ctx = document.getElementById(chartID).getContext('2d');
         console.log(ctx)
-        var used_ = vol_data_js[key][1];
-        var free_ = vol_data_js[key][3];
-        var used_str = vol_data_js[key][2];
-        var free_str = vol_data_js[key][4];
-        var rate = used_/free_;
-        var xValues = ["Used ("+used_str+" )", "free ("+free_str+" )"];
+        var used_ = vol_data_js[key][2];
+        var free_ = 100 - used_ ;
+        var xValues = ["Used ("+used_+"%)", "free ("+free_+"%)"];
         var yValues = [used_, free_];
         console.log(yValues)
-        if (rate > 19){  // =95%
+        if (used_ > 95){ 
                 var color_used = 'red' } 
-        else if(rate > 6){  // =85%
+        else if(used_ > 85){
                 var color_used = 'orange' } 
         else {
                 var color_used = 'green' }
@@ -103,7 +95,7 @@ Object.keys(vol_data_js).forEach(function(key) {
 
                         title: {
                               display: true,
-                              text: key + ' [' + vol_data_js[key][0] + ' ]'
+                              text: key + ' [' + vol_data_js[key][0] + vol_data_js[key][1] + ']'
                             },
                         
                         legend:{

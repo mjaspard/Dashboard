@@ -39,7 +39,8 @@ class AddServerForm(FlaskForm):
     public_server = BooleanField('Public Server')
     public_address = StringField('Public IP address', default='0.0.0.0', validators=[IPAddress(ipv4=True, ipv6=False, message=None)])
     public_name = StringField('Public hostname')
-    about_me = TextAreaField('About this server', validators=[Length(min=0, max=1500)])
+    about_me = TextAreaField('About this server', validators=[Length(min=0, max=300)])
+    mandatory_volumes = TextAreaField('Mandatory mounted volumes seperated by comma(e.g: vol1, vol2)', validators=[Length(min=0, max=300)])
     submit = SubmitField('Save data')
     
 
