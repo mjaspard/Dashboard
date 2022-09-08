@@ -32,7 +32,7 @@ class RegistrationForm(FlaskForm):
 
 class AddServerForm(FlaskForm):
     ssh_connection = BooleanField('SSH connection (only MacOS or Linux)')
-    mount_volumes = BooleanField('Mount Volumes (Windows)')
+    mount_volumes = BooleanField('Windows Volumes ?')
     user = StringField('Login User', validators=[DataRequired()])
     address = StringField('Local IP address', validators=[DataRequired(), IPAddress(ipv4=True, ipv6=False, message=None)])
     name = StringField('Local hostname', validators=[DataRequired()])
@@ -40,6 +40,7 @@ class AddServerForm(FlaskForm):
     public_address = StringField('Public IP address', default='0.0.0.0', validators=[IPAddress(ipv4=True, ipv6=False, message=None)])
     public_name = StringField('Public hostname')
     about_me = TextAreaField('About this server', validators=[Length(min=0, max=300)])
+    internal_volumes = TextAreaField('Internal volumes seperated by comma(cmd "df -H" column "mounted on")', validators=[Length(min=0, max=300)])
     mandatory_volumes = TextAreaField('Mandatory mounted volumes seperated by comma(e.g: vol1, vol2)', validators=[Length(min=0, max=300)])
     submit = SubmitField('Save data')
     
@@ -75,7 +76,7 @@ class EditProfileForm(FlaskForm):
 
 class PostForm(FlaskForm):
     post = TextAreaField('Add comments', validators=[DataRequired(), Length(min=1, max=10000)])
-    device = SelectField('Select device', choices=Server.query.all())
+    device = SelectField('Select device', choices=Server.query.all())   # !!!!!!!!!!!!issue
     submit = SubmitField('Submit')
 
 

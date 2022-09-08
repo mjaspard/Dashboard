@@ -16,7 +16,7 @@
                                                 {% if server.ping_all() %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
                                                 <td class={{ border_c }}>ping server</td>
 
-                                                {% if server.check_mounted_all_volumes()[0] %}
+                                                {% if server.check_mandatory_volumes() %}
                                                         {% if server.check_mounted_all_volumes()[1] %}{% set border_c = "green" %}{% else %}{% set border_c = "red" %}{% endif %}
                                                         <td class={{ border_c }}>Mounted Volumes</td>
                                                         {% else %}<td></td>{% endif %}
@@ -37,6 +37,7 @@
                                 </tbody>
                         </table>
                 {% elif server.ssh_connection == True %}
+                
                         <table class="table table-hover table-bordered monitoring">
 
                                 <tbody>

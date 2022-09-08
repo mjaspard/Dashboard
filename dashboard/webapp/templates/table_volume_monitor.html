@@ -32,31 +32,38 @@ const table = document.getElementById("body");
 // let row_0 = table.insertRow();
 
 var vol_data_js = {{ volumes_data | tojson | safe}};
-
+console.log("vol_data_js = "+ vol_data_js);
 var i = 0;
 var j = 0;
 var k = 0;
-for (l = 0; l < 10; l++){
-    eval('let row_' + l + ' = table.insertRow()');   
-}
+
 
 
 
 Object.keys(vol_data_js).forEach(function(key) {
 
-        eval('var row_' + k + ' = table.insertRow()');
-        console.log('Key : ' + key + ', Value : ' + vol_data_js[key])
+        if (j == 0){
+                var row = "row_" + k;
+                eval(row +'= table.insertRow()');      
+        }
+        else{
+                var row = "row_" + k;
+        }
+        console.log('Key : ' + key + ', Value : ' + vol_data_js[key]);
         var canvas = document.createElement("canvas");
         canvas.setAttribute("id", "myChart"+i);
         canvas.setAttribute("class", "vol_monitor");
         console.log("create canevas : "+ i)
-        eval('let cell= row_' + k + '.insertCell(j)');
+        var cell = "cell_" + i; 
+        console.log("current row = "+ row);
+        console.log("current cell = "+ cell);
+        eval(cell +' = '+row+ '.insertCell('+j+')');
         table.rows[k].cells[j].appendChild(canvas);
         i++;
         j++;
-        if (i >= 4){
-                // eval('var row_' + k + ' = table.insertRow()');
+        if (j >= 4){
                 k++;
+                j = 0;
                 }
 
 })

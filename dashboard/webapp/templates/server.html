@@ -112,7 +112,7 @@
 <!-- ---- CHECK VOLUMES ------  -->  
 
                         {% set volumes = server.check_mandatory_volumes() %}
-                        {% if volumes != [''] %}
+                        {% if volumes and (volumes != ['']) %}
                             {% for vol in volumes %}
                             <tr>
                                     <td>Check Volumes</td>

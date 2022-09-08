@@ -132,7 +132,6 @@ class Server(db.Model):
     system_type = db.Column(db.String(30), index=True)
     ssh_connection = db.Column(db.Boolean, default=False, index=True)
     mount_volumes = db.Column(db.Boolean, default=False, index=True)
-    internal_volumes = db.Column(db.String(300), default='', index=True)
     mandatory_volumes = db.Column(db.String(300), default='', index=True)
 
 
@@ -144,6 +143,7 @@ class Server(db.Model):
             return False
         else:
             return True
+
 
     def test_connect(self):
         if self.ping_ip():
@@ -157,7 +157,6 @@ class Server(db.Model):
                 cmd = "exit"
                 finalCMD = "{} \n".format(cmd)
                 ssh.stdin.write(finalCMD)
-                ssh.wait(timeout=10) # Stop trying to ssh after 5 seconds
                 ssh.stdin.close()
                 sshError = ssh.stderr.readlines()
                 if len(sshError) > 0:
@@ -167,7 +166,7 @@ class Server(db.Model):
                 if len(sshError) == 0:
                     return True, "ok"
             except:
-                return False, "timeout or unknown issue"
+                return False, "unknown issue"
         else:
             return False, "server is not pingable"  
 
@@ -294,6 +293,21 @@ class Server(db.Model):
         return resp
 
 
+    def check_mandatory_volumes_old(self):
+            volumes = "[]"
+            home = os.getcwd()
+            file = "{}/webapp/templates/server/mounted_volumes.txt".format(home)
+            with open (file, "r") as f:
+                for line in f:
+                        server_x = "{}:".format(self.name)
+                        if re.search(server_x, line):
+                                volumes = line.split(":")[1]
+                                volumes = re.search(r"\w.*\w", volumes)[0]  # Keep only alaphanum
+                                break
+                        else:
+                                volumes = ""
+            volumes = volumes.split(",")
+            return volumes
 
     def check_mandatory_volumes(self):
 
@@ -312,8 +326,27 @@ class Server(db.Model):
 
 
 
+    # def get_mounted_volumes_old(self):
+    #     i = 0
+    #     volumes = "[]"
+    #     home = os.getcwd()
+    #     file = "{}/webapp/templates/server/mounted_volumes.txt".format(home)
+    #     with open (file, "r") as f:
+    #         for line in f:
+    #                 server_x = "{}:".format(self.name)
+    #                 if re.search(server_x, line):
+    #                         volumes = line.split(":")[1]
+    #                         volumes = re.search(r"\w.*\w", volumes)[0]  # Keep only alaphanum (removes spaces)
+    #                         break
+    #                 else:
+    #                         volumes = ''
+    #     if volumes == '':
+    #         return False
+    #     return volumes
+
+
+
     def check_mounted_volumes(self, volume_name):
-            self.get_sysinfo()
             print("check mounted_volume = {}".format(volume_name))
             volume_name = re.search(r"\w.*\w", volume_name)[0]   # Keep only alaphanum  (removes spaces)
             if re.search('Darwin', self.system_type):
@@ -354,7 +387,6 @@ class Server(db.Model):
 
 
     def get_backup_info(self):
-        print("get backup info start")
         home = os.getcwd()
         file = "{}/webapp/templates/server/{}.py".format(home, self.name)
         try:    
@@ -392,161 +424,147 @@ class Server(db.Model):
             return False
 
 
+    # def check_vol_capacity(self):
+    #     values = {}
+    #     if (self.get_mounted_volumes()) and (self.mount_volumes):
+    #         volumes = self.check_mandatory_volumes()
+    #         i = 0
+    #         for vol in volumes:
+    #             vol = vol.strip(' ')
+    #             volume = '/Volumes/{}'.format(vol)
+    #             filter1 = '{\'print $2\'}'
+    #             cmd = ['df',  '-h', volume]
+    #             resp = subprocess.Popen(('df',  '-h', volume), stdout=subprocess.PIPE)
+    #             resp1 = subprocess.check_output(('grep', volume), stdin=resp.stdout) 
+    #             resp1 = resp1.decode('ascii')
+    #             total = resp1.split(' ')[3]
+    #             total_vol = int(re.search(r"\d*",total)[0])
+    #             total_unit = re.search(r"\D{2}",total)[0]
+    #             used_vol = re.search(r"\d+%", resp1)[0]
+    #             used_vol = int(re.search(r"\d*", used_vol)[0]) # in percent
+    #             cnt = i
+    #             i += 1
+    #             values[vol] = [total_vol, total_unit, used_vol, cnt]
+    #             # return values, len(values)
+    #     elif (self.check_mandatory_volumes() != ['']) and (not self.mount_volumes):
+    #         volumes = self.check_mandatory_volumes()
+    #         i = 0
+    #         for vol in volumes:
+    #             cmd = 'df -H | grep ' + vol 
+    #             resp = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
+    #             resp = resp[0].decode('ascii')
+    #             try:
+    #                 total = re.search(r"\s\d+\.*\d+[G|T]", resp)[0] # search number + unit total volume icluding decimal   
+    #                 total_vol = re.search(r"\d+\.*\d+",total)[0] # remove unit
+    #                 total_unit = re.search(r"[G|T]",total)[0]  # remove numbers
+    #                 used_vol = re.search(r"\d+\.*\d+%", resp)[0]
+    #                 used_vol = int(re.search(r"\d+\.*\d+", used_vol)[0]) # remove percent
+    #                 cnt = i
+    #                 i += 1
+    #             except:
+    #                 continue
+
+    #             # values[vol] = resp
+    #             values[vol] = [total_vol, total_unit, used_vol, cnt]
+    #     else:
+    #         return False, False
+    #     return values, len(values)
 
     def check_vol_capacity(self):
         mounted_volume = {}
         local_volume = {}
-        if self.mount_volumes: # Windows only
+        if self.mount_volumes:
             volumes = self.check_mandatory_volumes()
             i = 0
-            if volumes:
-                for vol in volumes:
-                    vol = vol.strip(' ')
-                    volume = '/Volumes/{}'.format(vol)
-                    filter1 = '{\'print $2\'}'
-                    cmd = ['df',  '-H', volume]
-                    resp = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-                    resp1 = subprocess.check_output(('grep', volume), stdin=resp.stdout) 
-                    resp1 = resp1.decode('ascii')
-                    total_vol_str = re.findall(r"\s\d+\.*\d+[k|G|T]", resp1)[0]
-                    used_vol_str = re.findall(r"\s\d+\.*\d+[k|G|T]", resp1)[1]
-                    used_vol = fm.convert_to_gigabyte(used_vol_str)
-                    avail_vol_str = re.findall(r"\s\d+\.*\d+[k|G|T]", resp1)[2]
-                    avail_vol = fm.convert_to_gigabyte(avail_vol_str)
-                    mounted_volume[vol] = [total_vol_str, used_vol, used_vol_str, avail_vol, avail_vol_str ]
+            for vol in volumes:
+                vol = vol.strip(' ')
+                volume = '/Volumes/{}'.format(vol)
+                filter1 = '{\'print $2\'}'
+                cmd = ['df',  '-H', volume]
+                resp = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+                resp1 = subprocess.check_output(('grep', volume), stdin=resp.stdout) 
+                resp1 = resp1.decode('ascii')
+                total_vol_str = re.findall(r"\s\d+\.*\d+[G|T]", resp1)[0]
+                used_vol_str = re.findall(r"\s\d+\.*\d+[G|T]", resp1)[1]
+                used_vol = fm.convert_to_gigabyte(used_vol_str)
+                avail_vol_str = re.findall(r"\s\d+\.*\d+[G|T]", resp1)[2]
+                avail_vol = fm.convert_to_gigabyte(avail_vol_str)
+                mounted_volume[vol] = [total_vol_str, used_vol, used_vol_str, avail_vol, avail_vol_str ]
         elif not self.mount_volumes:
             local_volume = self.read_local_storage()
             if self.check_mandatory_volumes() != ['']:
                 volumes = self.check_mandatory_volumes()
-                print("Mandatory volumes = {}".format(volumes))
                 i = 0
-                if volumes:
-                    for vol in volumes:
-                        print("check mounted volumes "+ vol)
-                        cmd = 'df -H | grep ' + vol + '$'
-                        resp = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
-                        resp = resp[0].decode('ascii')
-                        print("    0- resp = "+resp)
-                        try:
-                            total_vol_str = re.findall(r"\s\d+\.*\d+[k|G|T|\s]", resp)[0]
-                            print("   1- {}".format(total_vol_str))
-                            used_vol_str = re.findall(r"\s\d+\.*\d+[k|G|T|\s]", resp)[1]
-                            print("   2- {}".format(used_vol_str))
-                            used_vol = fm.convert_to_gigabyte(used_vol_str)
-                            print("   3- {}".format(used_vol))
-                            avail_vol_str = re.findall(r"\s\d+[\.|\,]*\d+[k|G|T|\s]", resp)[2]
-                            print("   4- {}".format(avail_vol_str))
-                            avail_vol = fm.convert_to_gigabyte(avail_vol_str)
-                            print("   5- {}".format(avail_vol))
-                        except:
-                            print("Not able to display volume data on {}".format(vol))
-                            continue
-                        mounted_volume[vol] = [total_vol_str, used_vol, used_vol_str, avail_vol, avail_vol_str ]
+                for vol in volumes:
+                    cmd = 'df -H | grep ' + vol 
+                    resp = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
+                    resp = resp[0].decode('ascii')
+                    try:
+                        total_vol_str = re.findall(r"\s\d+\.*\d+[G|T]", resp)[0]
+                        used_vol_str = re.findall(r"\s\d+\.*\d+[G|T]", resp)[1]
+                        used_vol = fm.convert_to_gigabyte(used_vol_str)
+                        avail_vol_str = re.findall(r"\s\d+\.*\d+[G|T]", resp)[2]
+                        avail_vol = fm.convert_to_gigabyte(avail_vol_str)
+                    except:
+                        continue
+                    mounted_volume[vol] = [total_vol_str, used_vol, used_vol_str, avail_vol, avail_vol_str ]
         else:
             return False, False
         
-        all_volumes = {**local_volume, **mounted_volume}
+        all_volumes = {**mounted_volume, **local_volume}
         return all_volumes, len(all_volumes)
+
 
     @deco_unix_like
     def read_local_storage(self):
-
         vol_data = {}
-        if not self.internal_volumes:
-            return vol_data
-        volumes = self.internal_volumes.split(",")
-        print("read local volumes: {}".format(volumes))
-        if volumes != [] and volumes != ['']:
-            i = 0
-            for vol in volumes:
-                print("--> work on : {}".format(vol))
-                i += 1
-                try:   
-                    cmd = 'df -H | grep ' + vol + '$' 
-                    resp1 = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
-                    resp1 = resp1[0].decode('ascii')
-                    print("1: " +resp1)
-                    total_vol_str = re.findall(r"\s\d+[\.|\,]*\d+[k|G|T|\s]", resp1)[0]
-                    print("2: " +total_vol_str)
-                    total_vol = fm.convert_to_gigabyte(total_vol_str)
-                    print("3: " + str(total_vol))
-                    avail_vol_str = re.findall(r"\s\d+[\.|\,]*\d+[k|G|T|\s]", resp1)[2]
-                    print(avail_vol_str)
-                    avail_vol = fm.convert_to_gigabyte(avail_vol_str)
-                    print(avail_vol)
-                    used_vol = total_vol - avail_vol
-                    print(used_vol)
-                    if re.search(r"\d{4}\d*", str(used_vol)):
-                        used_vol_str = float(used_vol/1000)
-                        used_vol_str = "{} TB".format(str(used_vol_str))
-                        print(used_vol_str)
-                    else:
-                        used_vol_str = "{} GB".format(str(used_vol))
-                    disk = "internal {} ({})".format(i, vol)
-                    vol_data[disk] = [total_vol_str, used_vol, used_vol_str, avail_vol, avail_vol_str]
-                    print("detail: {}".format(vol_data[disk]))
-                except:
-                    print("Not able to read local volume data on {}".format(vol))
-                    continue
-
+        if  re.search('Darwin', self.system_type):
+            cmd = 'diskutil list | grep internal | tail -1' 
+            resp = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
+            resp = resp[0].decode('ascii')
+            resp = resp.split('\n')
+            for vol in resp:
+                if not vol:
+                        continue
+                location, vol_path = fm.get_synth_disk_info_mac(vol)
+                cmd = 'df -H | grep ' + vol_path + ' | head -1' 
+                resp1 = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
+                resp1 = resp1[0].decode('ascii')  
+                total_vol_str = re.findall(r"\s\d+\.*\d+[G|T]", resp1)[0]
+                total_vol = fm.convert_to_gigabyte(total_vol_str)
+                avail_vol_str = re.findall(r"\s\d+\.*\d+[G|T]", resp1)[2]
+                avail_vol = fm.convert_to_gigabyte(avail_vol_str)
+                used_vol = total_vol - avail_vol
+                if re.search(r"\d{4}\d*", str(used_vol)):
+                    used_vol_str = float(used_vol/1000)
+                    used_vol_str = "{} TB".format(str(used_vol_str))
+                else:
+                    used_vol_str = "{} GB".format(str(used_vol))
+                vol_data[location] = [total_vol_str, used_vol, used_vol_str, avail_vol, avail_vol_str]
+        if  re.search('Linux', self.system_type):
+            cmd = 'lsblk | grep disk | grep mnt' 
+            resp = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
+            resp = resp[0].decode('ascii')
+            resp = resp.split('\n')
+            for vol in resp:
+                if not vol:
+                        continue
+                location, vol_path = fm.get_disk_info_linux(vol)
+                cmd = 'df -H | grep ' + vol_path + ' | head -1' 
+                resp1 = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
+                resp1 = resp1[0].decode('ascii')  
+                total_vol_str = re.findall(r"\s\d+\,*\d+[G|T]", resp1)[0]
+                total_vol = fm.convert_to_gigabyte(total_vol_str)
+                avail_vol_str = re.findall(r"\s\d+\,*\d+[G|T]", resp1)[2]
+                avail_vol = fm.convert_to_gigabyte(avail_vol_str)
+                used_vol = total_vol - avail_vol
+                if re.search(r"\d{4}\d*", str(used_vol)):
+                    used_vol_str = float(used_vol/1000)
+                    used_vol_str = "{} TB".format(str(used_vol_str))
+                else:
+                    used_vol_str = "{} GB".format(str(used_vol))
+                vol_data[location] = [total_vol_str, used_vol, used_vol_str, avail_vol, avail_vol_str]
         return vol_data
-
-
-    # @deco_unix_like
-    # def read_local_storage(self):
-    #     vol_data = {}
-    #     if  re.search('Darwin', self.system_type):
-    #         cmd = 'diskutil list | grep internal | tail -1' 
-    #         resp = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
-    #         resp = resp[0].decode('ascii')
-    #         resp = resp.split('\n')
-    #         print("test read local read_local_storage resp = {}".format(resp))
-    #         for vol in resp:
-    #             if not vol:
-    #                     continue
-    #             try:
-    #                 location, vol_path = fm.get_synth_disk_info_mac(vol)
-    #                 cmd = 'df -H | grep ' + vol_path + ' | head -1' 
-    #                 resp1 = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
-    #                 resp1 = resp1[0].decode('ascii') 
-    #                 print("test read_local_storage resp1 = {}".format(vol_path))
-    #                 total_vol_str = re.findall(r"\s\d+\.*\d+[G|T]", resp1)[0]
-    #                 total_vol = fm.convert_to_gigabyte(total_vol_str)
-    #                 avail_vol_str = re.findall(r"\s\d+\.*\d+[G|T]", resp1)[2]
-    #                 avail_vol = fm.convert_to_gigabyte(avail_vol_str)
-    #                 used_vol = total_vol - avail_vol
-    #                 if re.search(r"\d{4}\d*", str(used_vol)):
-    #                     used_vol_str = float(used_vol/1000)
-    #                     used_vol_str = "{} TB".format(str(used_vol_str))
-    #                 else:
-    #                     used_vol_str = "{} GB".format(str(used_vol))
-    #                 vol_data[location] = [total_vol_str, used_vol, used_vol_str, avail_vol, avail_vol_str]
-    #             except:
-    #                 print("Not able to read local storage for : {}".format(vol))
-    #     if  re.search('Linux', self.system_type):
-    #         cmd = 'lsblk | grep disk | grep mnt' 
-    #         resp = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
-    #         resp = resp[0].decode('ascii')
-    #         resp = resp.split('\n')
-    #         for vol in resp:
-    #             if not vol:
-    #                     continue
-    #             location, vol_path = fm.get_disk_info_linux(vol)
-    #             cmd = 'df -H | grep ' + vol_path + ' | head -1' 
-    #             resp1 = subprocess.Popen(f"ssh {self.user}@{self.address} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()  
-    #             resp1 = resp1[0].decode('ascii')  
-    #             total_vol_str = re.findall(r"\s\d+\,*\d+[G|T]", resp1)[0]
-    #             total_vol = fm.convert_to_gigabyte(total_vol_str)
-    #             avail_vol_str = re.findall(r"\s\d+\,*\d+[G|T]", resp1)[2]
-    #             avail_vol = fm.convert_to_gigabyte(avail_vol_str)
-    #             used_vol = total_vol - avail_vol
-    #             if re.search(r"\d{4}\d*", str(used_vol)):
-    #                 used_vol_str = float(used_vol/1000)
-    #                 used_vol_str = "{} TB".format(str(used_vol_str))
-    #             else:
-    #                 used_vol_str = "{} GB".format(str(used_vol))
-    #             vol_data[location] = [total_vol_str, used_vol, used_vol_str, avail_vol, avail_vol_str]
-    #     return vol_data
 
 
 
