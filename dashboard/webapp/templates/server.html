@@ -67,11 +67,8 @@
             </thead>
             <tbody>
 
-                {% if server.ssh_connection %}
+                {% if server.test_connect()[0] %}
 
-                    {% if not server.test_connect()[0] %}
-                        <p class="redcenter"> Not able to update monitoring because {{ server.test_connect()[1]  }}<p>
-                    {% else %}
                         <tr >
                                     <th>Test</th>
                                     <th>Command</th>
@@ -145,7 +142,10 @@
 
                         {%endif%}
 
-                    {% endif %}
+                {% else %}
+
+                    <p class="redcenter"> Not able to update monitoring because {{ server.test_connect()[1]  }}<p>
+
                 {% endif %}
             
             </tbody>
@@ -156,10 +156,12 @@
 
 <br></br>
 
+
+
 <!-- Tableau volumes monitoring -->
-
+    {% if server.test_connect()[0] %}
         {% include "table_volume_monitor.html" %} 
-
+    {% endif %}
 <!-- <p>{#{ server.check_mandatory_volumes() }#} </p> -->
 <!-- <p>{#{ server.check_vol_capacity() }#} </p> -->
 <!-- <p>{#{ server.read_local_storage() }#} </p> -->

@@ -157,7 +157,7 @@ class Server(db.Model):
                 cmd = "exit"
                 finalCMD = "{} \n".format(cmd)
                 ssh.stdin.write(finalCMD)
-                ssh.wait(timeout=10) # Stop trying to ssh after 5 seconds
+                ssh.wait(timeout=15) # Stop trying to ssh after 5 seconds
                 ssh.stdin.close()
                 sshError = ssh.stderr.readlines()
                 if len(sshError) > 0:
@@ -187,6 +187,7 @@ class Server(db.Model):
 
     def deco_unix_like(function):
         def unix_like(self):
+            self.get_sysinfo()
             if (re.search('Darwin', self.system_type)) or (re.search('Linux', self.system_type)):
                 return function(self)
             else:
